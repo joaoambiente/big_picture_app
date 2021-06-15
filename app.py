@@ -4,13 +4,17 @@ import pandas as pd
 import requests
 import time
 import json
+import webbrowser
 
-st.markdown(''' 
-# The Big Picture 
-''')
+st.title('''The Big Picture''')
 
+# Form example
+#with st.form(key='my_form'):
+#    text_input = st.text_input(label='Enter your name')
+#    submit_button = st.form_submit_button(label='Submit')
+
+# This is the initial claim for our project:
 text = "Enhance your perspectives on the news... with AI!"
-
 t = st.empty()
 for i in range(len(text) + 1):
     t.markdown("## %s" % text[0:i])
@@ -18,6 +22,57 @@ for i in range(len(text) + 1):
 
 query = st.text_input("Search terms (english only): ")
 # st.write("You've requested these search terms:  ", query)
+
+if st.button('Get news!', key=1):
+    # Retrieving the prediction from the **JSON** returned by the API...
+    # response = requests.get(url + endpoint, params=news_params)
+    # response_json = response.json()
+    # news_list = response_json["news_list"]
+
+    # Example .json
+    get_search_output = open('./data/example_search_output.json',) 
+    news_list = json.load(get_search_output)
+    get_search_output.close()
+    news_list = news_list["articles"]
+    
+    for index, news in enumerate(news_list[0:10]):
+        # Widget within an expander
+        #my_expander = st.beta_expander("Click to expand", expanded=False)
+        # Widget/buttons skeleton
+        #with my_expander:
+        col1,col2,col3 = st.beta_columns(3)
+        with col1:
+            #link = '[GitHub](http://github.com)'
+            #st.markdown(link, unsafe_allow_html=True)
+            st.write(f'{news["title"]}')
+            
+        with col2:
+            st.button(f'Get sentiment analysis report', key=index+1)
+            #st.write(f'Url: {news["url"]}')
+            #st.button(f'Result {index+1}: {news["title"]}', key=index+1)
+        with col3:
+            #st.write(f'Url: {news["url"]}')
+            st.write(f'[Read this news article]({news["url"]})')
+            #st.button(f'Result {index+1}: {news["title"]}', key=index+1)
+
+            
+            #st.button(f'Result {index+1}: {news["title"]}', key=index+2)
+            #url = news["url"]
+            #if st.button('Open browser'):
+             #   link = f'[url](http://github.com)'
+              #  st.markdown(link, unsafe_allow_html=True)
+                
+        # print will be visible in server output, not in the page
+        # st.write(f'Source: {news_list[0]["source"]["name"]}')
+        # st.write(f'Author: {news_list[0]["author"]}')
+        
+        # st.write(f'Description: {news_list[0]["description"]}')
+        # st.write(f'Url: {news_list[0]["url"]}')
+        # st.write(f'Url to image: {news_list[0]["urlToImage"]}')
+        # st.write(f'Published At: {news_list[0]["publishedAt"]}')    
+        # st.write(f'Content: {news_list[0]["content"]}')
+else:
+    st.write('Click this button to get a list of 10 news based on a simple query.')
 
 st.markdown('''  
 ## Advanced query:
@@ -32,11 +87,26 @@ st.markdown('''#### Title''')
 title = st.text_input("Select search terms within a title (english only): ", key=1)
 
 st.markdown('''#### Sources''')
-source = st.text_input('''Input terms separated by commas (maximum 20) 
-for the news sources you want headlines from (english sources only) : ''', key=2)
+
+get_sources = open('./support_data/sources.json',) 
+data = json.load(get_sources)
+get_sources.close()
+sources_df = pd.DataFrame(data["sources"])
+sources_df = sources_df[sources_df["language"] == "en"]
+sources_list = sources_df.id.to_list()
+domains_list = sources_df.url.to_list()
+
+source = st.multiselect("Select one or more sources for the news sources you want headlines from (english sources only, max. 20 sources): ",
+    sources_list)
+source = ','.join(source)
 
 st.markdown('''#### Domain''')
-label = st.text_input("Input domains separated by commas (eg bbc.co.uk, techcrunch.com, engadget.com) to restrict the search: ", key=3)
+label = st.multiselect("Input domains separated by commas (eg bbc.co.uk, techcrunch.com, engadget.com) to restrict the search: ",
+    domains_list)
+label = ','.join(label)
+
+# Se a lista de domains não funcionar bem podemos usar antes isto:
+# label = st.text_input("Input domains separated by commas (eg bbc.co.uk, techcrunch.com, engadget.com) to restrict the search: ", key=2)
 
 # URL for our API...
 url = 'https://github.com/archifreitas/bg_api/'
@@ -53,7 +123,7 @@ news_params = {
 
 # Calling our Big Picture API using the `requests` package and returning a value with a button
 
-if st.button('Get news!', key=1):
+if st.button('Get news!', key=2):
     # Retrieving the prediction from the **JSON** returned by the API...
     # response = requests.get(url + endpoint, params=news_params)
     # response_json = response.json()
@@ -63,28 +133,18 @@ if st.button('Get news!', key=1):
     get_search_output.close()
     news_list = news_list["articles"]
 
-    # print will be visible in server output, not in the page
-    st.write(f'Source: {news_list[0]["source"]["name"]}')
-    st.write(f'Author: {news_list[0]["author"]}')
-    st.write(f'Title: {news_list[0]["title"]}')
-    st.write(f'Description: {news_list[0]["description"]}')
-    st.write(f'Description: {news_list[0]["description"]}')
+    for article in news_list:
+        # print will be visible in server output, not in the page
+        # st.write(f'Source: {news_list[0]["source"]["name"]}')
+        # st.write(f'Author: {news_list[0]["author"]}')
+        st.write(f'Title: {news_list[0]["title"]}')
+        # st.write(f'Description: {news_list[0]["description"]}')
+        # st.write(f'Url: {news_list[0]["url"]}')
+        # st.write(f'Url to image: {news_list[0]["urlToImage"]}')
+        # st.write(f'Published At: {news_list[0]["publishedAt"]}')    
+        # st.write(f'Content: {news_list[0]["content"]}')
 else:
-    st.write('Click this button to get a list of news based on your search parameters.')
-
-'''
-    "source": {
-        "id": "mashable",
-        "name": "Mashable"
-    },
-    "author": "Tim Marcin",
-    "title": "All 185 episodes of 'The Office,' ranked",
-    "description": "An obsession is a funny thing. It happens while you aren’t looking. \nFor me, I realized The Office bordered on obsession when it began creeping into my daily existence. It went from being a show I enjoyed to being every other reference in my conversations.\nI'…",
-    "url": "https://mashable.com/article/best-episodes-the-office-ranked/",
-    "urlToImage": "https://mondrian.mashable.com/2021%252F05%252F14%252F0e%252Fc2077234ef9b4940bdb030eb206dd839.525da.jpg%252F1200x630.jpg?signature=7ltpp_Uc8y6t1bfpE08d0bevwMU=",
-    "publishedAt": "2021-05-16T15:00:00Z",
-    "content": "An obsession is a funny thing. It happens while you arent looking. \r\nFor me, I realized The Office bordered on obsession when it began creeping into my daily existence. It went from being a show I en… [+203434 chars]"
-'''
+    st.write('Click this button to get a list of 10 news based on your advanced search parameters.')
 
 # my_dict = news_list[0]
 my_dict = {}
@@ -94,6 +154,10 @@ endpoint = "predict"
 sentiment_params = {
         "sample": my_dict
             }
+
+st.markdown('''  
+## Sentiment Analysis:
+''')
 
 if st.button('What is the sentiment of this news article, positive or negative?', key=2):
     response = requests.get(url, params=sentiment_params)

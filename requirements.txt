@@ -1,8 +1,7 @@
 # necessary
 streamlit
 numpy
-requests 
-streamlit
+requests
 
 # May not be necessary
 pandas
