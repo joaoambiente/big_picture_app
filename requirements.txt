@@ -1,9 +1,8 @@
 # necessary
 streamlit
-# requests==2.25.1
-time
 numpy
+requests 
+streamlit
 
 # May not be necessary
 pandas
-json

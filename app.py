@@ -66,6 +66,9 @@ if st.button('Get news!', key=1):
     # print will be visible in server output, not in the page
     st.write(f'Source: {news_list[0]["source"]["name"]}')
     st.write(f'Author: {news_list[0]["author"]}')
+    st.write(f'Title: {news_list[0]["title"]}')
+    st.write(f'Description: {news_list[0]["description"]}')
+    st.write(f'Description: {news_list[0]["description"]}')
 else:
     st.write('Click this button to get a list of news based on your search parameters.')
 
