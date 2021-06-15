@@ -64,10 +64,24 @@ if st.button('Get news!', key=1):
     news_list = news_list["articles"]
 
     # print will be visible in server output, not in the page
-    st.write(f'Title: {news_list}')
+    st.write(f'Source: {news_list[0]["source"]["name"]}')
+    st.write(f'Author: {news_list[0]["author"]}')
 else:
     st.write('Click this button to get a list of news based on your search parameters.')
 
+'''
+    "source": {
+        "id": "mashable",
+        "name": "Mashable"
+    },
+    "author": "Tim Marcin",
+    "title": "All 185 episodes of 'The Office,' ranked",
+    "description": "An obsession is a funny thing. It happens while you aren’t looking. \nFor me, I realized The Office bordered on obsession when it began creeping into my daily existence. It went from being a show I enjoyed to being every other reference in my conversations.\nI'…",
+    "url": "https://mashable.com/article/best-episodes-the-office-ranked/",
+    "urlToImage": "https://mondrian.mashable.com/2021%252F05%252F14%252F0e%252Fc2077234ef9b4940bdb030eb206dd839.525da.jpg%252F1200x630.jpg?signature=7ltpp_Uc8y6t1bfpE08d0bevwMU=",
+    "publishedAt": "2021-05-16T15:00:00Z",
+    "content": "An obsession is a funny thing. It happens while you arent looking. \r\nFor me, I realized The Office bordered on obsession when it began creeping into my daily existence. It went from being a show I en… [+203434 chars]"
+'''
 
 # my_dict = news_list[0]
 my_dict = {}

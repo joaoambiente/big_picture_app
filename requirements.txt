@@ -1,6 +1,6 @@
 # necessary
 streamlit
-requests==2.25.1
+# requests==2.25.1
 time
 numpy
 
