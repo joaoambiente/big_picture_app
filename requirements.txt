@@ -1,2 +1,5 @@
 streamlit
-urllib
+numpy
+pandas
+requests
+time
