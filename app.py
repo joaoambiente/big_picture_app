@@ -1,9 +1,9 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-# import datetime
 import requests
 import time
+import json
 
 st.markdown(''' 
 # The Big Picture 
@@ -54,14 +54,17 @@ news_params = {
 # Calling our Big Picture API using the `requests` package and returning a value with a button
 
 if st.button('Get news!', key=1):
-    response = requests.get(url + endpoint, params=news_params)
-    response_json = response.json()
-
     # Retrieving the prediction from the **JSON** returned by the API...
-    news_list = response_json["news_list"]
+    # response = requests.get(url + endpoint, params=news_params)
+    # response_json = response.json()
+    # news_list = response_json["news_list"]
+    get_search_output = open('./data/example_search_output.json',) 
+    news_list = json.load(get_search_output)
+    get_search_output.close()
+    news_list = news_list["articles"]
 
     # print will be visible in server output, not in the page
-    st.write(f'{news_list}')
+    st.write(f'Title: {news_list}')
 else:
     st.write('Click this button to get a list of news based on your search parameters.')
 

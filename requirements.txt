@@ -1,5 +1,9 @@
+# necessary
 streamlit
-numpy
-pandas
-requests
+requests==2.25.1
 time
+numpy
+
+# May not be necessary
+pandas
+json
