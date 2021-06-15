@@ -6,7 +6,9 @@ raw_data/
 **/__pycache__/
 .env
 .python-version
+.ipynb
 
 # Data
+./data
 *.csv
 *.json
