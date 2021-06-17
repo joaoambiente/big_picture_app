@@ -7,10 +7,11 @@ import seaborn as sns
 import requests
 import time
 import json
+from urllib.parse import urlparse
 import pickle
 import SessionState
 import random
-
+from PIL import Image
 
 st.set_page_config(
     page_title="The Big Picture App",
@@ -19,24 +20,19 @@ st.set_page_config(
     #initial_sidebar_state="expanded",
 )
 
-# "CSS"
-st.markdown("""
-<style>
-.small-font {
-    font-size:12px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+local_css("style.css")
 
-st.title('''The Big Picture''')
+# st.markdown("<h1 style='text-align: center; color: white;'>The Big Picture</h1>", unsafe_allow_html=True)
+col_a,col_b,col_c = st.beta_columns([3.2,2,3])
+with col_b:
+    image = Image.open('images/big_picture_logo.png')
+    st.image(image, use_column_width=False,width=250)
 
-# This is the initial claim for our project:
-text = "Enhance your perspectives on the news... with AI!"
-t = st.empty()
-for i in range(len(text) + 1):
-    # heading 2
-    t.markdown("## %s" % text[0:i])
-    time.sleep(0.00001) # decrease speed before presentation
+st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspectives on the news... with AI!</h1>", unsafe_allow_html=True)
+
 
 query = st.text_input("Search terms (english only): ")
 
@@ -57,11 +53,16 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
     news_list = json.load(get_sources)
     get_sources.close()
 
+    hr = f'<hr class="divider"></hr>'
+    st.markdown(hr, unsafe_allow_html=True)
+
     # Organizing buttons in columns
     for keys, news in news_list.items():
         col1,col2 = st.beta_columns([2,1])
+
         with col1:
-            news["title"]
+            news_title = f'<p class="article-title">{news["title"]}</h2>'
+            st.markdown(news_title, unsafe_allow_html=True)
         with col2:
             st.write(f'[Read from source]({news["url"]})')
         my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
@@ -265,6 +266,34 @@ with my_expander:
     sentiment_params = {
             "sample": my_dict
                 }
+
+
+# Add time to some text
+# t = st.empty()
+# for i in range(len(text) + 1):
+#     # heading 2
+#     t.markdown("## %s" % text[0:i])
+#     time.sleep(0.05) # decrease speed before presentation
+
+
+
+#get some logos
+
+        # src = news['url']
+        # domain = urlparse(src).netloc.strip("www.")
+        # url = f"https://autocomplete.clearbit.com/v1/companies/suggest?query={domain}"
+        # headers = {
+        #     'Accept': '*/*',
+        #     'Host': 'autocomplete.clearbit.com',
+        #     'Origin': 'https://clearbit.com',
+        #     'Referer': 'https://clearbit.com/logo',
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
+        #     'Accept-Language': 'pt-PT,pt;q=0.8,en;q=0.5,en-US;q=0.3',
+        #     'Connection':'keep-alive',
+        #     'Accept-Encoding': 'gzip, deflate, br'
+        # }
+        # response = requests.get(url, headers=headers)
+
 
   #  st.markdown('''  
   #  ## Sentiment Analysis:
