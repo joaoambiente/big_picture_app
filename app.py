@@ -195,14 +195,11 @@ st.markdown('''
 my_expander = st.beta_expander("Click to expand", expanded=False)
 with my_expander:
     # st.markdown('''#### Search terms''')
-    query = st.text_input("Search terms (english only): ", value="Insert search term here", key=1)
+    query = st.text_input("Search terms (english only): ", key=1)
 
     st.markdown('''#### Date''')
     date_from = st.date_input("Please select how far back you want to get the news from: ")
     date_from = date_from.strftime("%Y-%m-%d")
-
-    # st.markdown('''#### Title''')
-    # title = st.text_input("Select search terms within a title (english only): ", value="Insert search term here", key=2)
 
     st.markdown('''#### Sources''')  
     with open ('./support_data/domains_list.txt', 'rb') as fp:
