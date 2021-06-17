@@ -5,6 +5,7 @@ import requests
 import time
 import json
 from urllib.parse import urlparse
+from utils.logos import get_logos
 import pickle
 import SessionState
 from PIL import Image
