@@ -11,3 +11,11 @@
     height: 12px;
     background-color:rgb(255, 255, 255);
 }
+
+.green_arrow {
+    color:rgb(157, 219, 157);
+}
+
+.red_arrow {
+    color:rgb(230, 98, 80);
+}
