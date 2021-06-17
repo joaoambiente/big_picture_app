@@ -1,8 +1,7 @@
-# necessary for sure
+# requirements
 streamlit
 numpy
 requests
-
-# May not be necessary
+seaborn
 pandas
 wordcloud

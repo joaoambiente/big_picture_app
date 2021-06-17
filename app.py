@@ -5,7 +5,6 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import seaborn as sns
 import requests
-# import time
 import json
 from urllib.parse import urlparse
 from utils.logos import get_logos
@@ -255,7 +254,7 @@ get_news('advanced')
     #         "sample": my_dict
     #             }
 
-
+# import time
 # Add time to some text
 # t = st.empty()
 # for i in range(len(text) + 1):
