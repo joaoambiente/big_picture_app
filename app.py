@@ -33,7 +33,7 @@ for i in range(len(text) + 1):
     t.markdown("## %s" % text[0:i])
     time.sleep(0.00001) # decrease speed before presentation
 
-query = st.text_input("Search terms (english only): ", value="Insert search terms here")
+query = st.text_input("Search terms (english only): ")
 
 session_state = SessionState.get(checkboxed=False)
 if st.button('Get news!', key=1) or session_state.checkboxed:
@@ -63,37 +63,37 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
         
         with my_expander:
             col1,col2 = st.beta_columns([1,7])
+            col4,col5,col6 = st.beta_columns([2,2,2])
             with col1:
                 if st.button("Make Prediction", key=keys):
                     # Import .json
                     # # df = pd.Dataframe()
                     with col2:
                         st.write("Predicting....")
-            col1,col2,col3 = st.beta_columns([2,2,2])
-            with col1:
-                if st.checkbox('Predicted Topics', key=keys):
-                    st.write('''
-        This code will only be executed when the check box is checked
+                    with col4:
+                        if st.checkbox('Predicted Topics', key=keys):
+                            st.write('''
+                This code will only be executed when the check box is checked
 
-        Streamlit elements injected inside of this block of code will \
-        not get displayed unless it is checked
-        ''')
-            with col2:
-                if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
-                    st.write('''
-        This code will only be executed when the check box is checked
+                Streamlit elements injected inside of this block of code will \
+                not get displayed unless it is checked
+                ''')
+                    with col5:
+                        if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
+                            st.write('''
+                This code will only be executed when the check box is checked
 
-        Streamlit elements injected inside of this block of code will \
-        not get displayed unless it is checked
-        ''')
-            with col3:
-                if st.checkbox('Word Cloud', key=keys*3):
-                    st.write('''
-        This code will only be executed when the check box is checked
+                Streamlit elements injected inside of this block of code will \
+                not get displayed unless it is checked
+                ''')
+                    with col6:
+                        if st.checkbox('Word Cloud', key=keys*3):
+                            st.write('''
+                This code will only be executed when the check box is checked
 
-        Streamlit elements injected inside of this block of code will \
-        not get displayed unless it is checked
-        ''')
+                Streamlit elements injected inside of this block of code will \
+                not get displayed unless it is checked
+                ''')
 
 #if st.button('Click me') :
     
