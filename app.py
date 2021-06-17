@@ -59,20 +59,21 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
 
     # Organizing buttons in columns
     for keys, news in news_list.items():
-        col1,col2 = st.beta_columns([2,1])
+        col1,col2,col3 = st.beta_columns([0.1,2,0.3])
 
         src = news['url']  
         domain = urlparse(src).netloc.strip("www.")
         logo_url = get_logos(domain)
 
         with col1:
+            logo_img = f'<img class="image_logo" src="{logo_url}">'
+            st.markdown(logo_img, unsafe_allow_html=True)        
+        with col2:
             news_title = f'<p class="article-title">{news["title"]}</h2>'
             st.markdown(news_title, unsafe_allow_html=True)
-
-            logo_img = f'<img src="{logo_url}">'
-            st.markdown(logo_img, unsafe_allow_html=True)
-        with col2:
+        with col3:
             st.write(f'[Read from source]({news["url"]})')
+        
         my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
         
         with my_expander:
