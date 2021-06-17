@@ -1,11 +1,17 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import seaborn as sns
 import requests
 import time
 import json
+from urllib.parse import urlparse
 import pickle
 import SessionState
+import random
+from PIL import Image
 
 st.set_page_config(
     page_title="The Big Picture App",
@@ -14,24 +20,19 @@ st.set_page_config(
     #initial_sidebar_state="expanded",
 )
 
-# "CSS"
-st.markdown("""
-<style>
-.small-font {
-    font-size:12px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+local_css("style.css")
 
-st.title('''The Big Picture''')
+# st.markdown("<h1 style='text-align: center; color: white;'>The Big Picture</h1>", unsafe_allow_html=True)
+col_a,col_b,col_c = st.beta_columns([3.2,2,3])
+with col_b:
+    image = Image.open('images/big_picture_logo.png')
+    st.image(image, use_column_width=False,width=250)
 
-# This is the initial claim for our project:
-text = "Enhance your perspectives on the news... with AI!"
-t = st.empty()
-for i in range(len(text) + 1):
-    # heading 2
-    t.markdown("## %s" % text[0:i])
-    time.sleep(0.00001) # decrease speed before presentation
+st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspectives on the news... with AI!</h1>", unsafe_allow_html=True)
+
 
 query = st.text_input("Search terms (english only): ")
 
@@ -52,48 +53,144 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
     news_list = json.load(get_sources)
     get_sources.close()
 
+    hr = f'<hr class="divider"></hr>'
+    st.markdown(hr, unsafe_allow_html=True)
+
     # Organizing buttons in columns
     for keys, news in news_list.items():
         col1,col2 = st.beta_columns([2,1])
+
         with col1:
-            news["title"]
+            news_title = f'<p class="article-title">{news["title"]}</h2>'
+            st.markdown(news_title, unsafe_allow_html=True)
         with col2:
             st.write(f'[Read from source]({news["url"]})')
         my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
         
         with my_expander:
-            col1,col2 = st.beta_columns([1,7])
-            col4,col5,col6 = st.beta_columns([2,2,2])
+            col1,col2 = st.beta_columns([1,1])
+            col7, col8 = st.beta_columns([1,1])
+            col9, col10 = st.beta_columns([1,1])
+            col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
+
             with col1:
                 if st.button("Make Prediction", key=keys):
                     # Import .json
                     # # df = pd.Dataframe()
-                    with col2:
-                        st.write("Predicting....")
-                    with col4:
-                        if st.checkbox('Predicted Topics', key=keys):
-                            st.write('''
-                This code will only be executed when the check box is checked
-
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
-                    with col5:
-                        if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
-                            st.write('''
-                This code will only be executed when the check box is checked
-
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
+                    get_sources = open('./data/example_pd_topics.json')
+                    data = json.load(get_sources)
+                    data_df = json.loads(data['data'])
+                    data_df = pd.DataFrame(data_df)
+                    topic = data['topic']
+                    
                     with col6:
-                        if st.checkbox('Word Cloud', key=keys*3):
-                            st.write('''
-                This code will only be executed when the check box is checked
+                        
+                        if data_df.iloc[0,1] > data_df.SA.mean():
+                            if data_df.iloc[0,1] > 0:
+                                st.write(
+                                    'This article is more positive than the average for this topic'
+                                    )
+                            else:
+                                st.write(
+                                    'This article is less negative than the average for this topic'
+                                    )
+                        else:
+                            if data_df.iloc[0,1] > 0:
+                                st.write(
+                                    'This article is less positive than the average'
+                                    )
+                            else:
+                                st.write(
+                                    'This article is more negative than the average'
+                                    )
 
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
+                        figure = plt.figure()
+                        sorted_df = data_df.sort_values('SA').reset_index()
+                        my_kde = sns.kdeplot(
+                            sorted_df.SA,
+                            shade=True,
+                            color='grey'
+                            #marker='o',
+                            #markevery=[sorted_df[sorted_df['index'] == '0'].index[0]]
+                            )
+                        
+                        y = np.linspace(0,1)
+                        x = y*0 + data_df.iloc[0,1]
+
+                        if data_df.iloc[0,1] > 0:
+                            color = [0,data_df.iloc[0,1],0]
+                        else:
+                            color = [-data_df.iloc[0,1],0,0]
+
+                        plt.plot(x,y, color=color)
+                        plt.axis('off')
+
+                        plt.xlim(-1,1)
+                        st.write(figure)
+                    with col9:
+                        st.write('Similar Articles:')
+
+                        comment_words = ' '.join(topic)
+                        
+                        def grey_color_func(word, font_size, position, orientation, random_state=None,
+                                            **kwargs):
+                            return "hsl(0, 0%%, %d%%)" % random.randint(60, 100)
+
+                        wordcloud = WordCloud(width = 800, height = 800,
+                                        background_color ='black',
+                                        min_font_size = 10).generate(comment_words)
+
+                        # plot the WordCloud image	
+                    with col6:				
+                        figure = plt.figure(figsize = (8, 8), facecolor = None)
+                        plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
+                                interpolation="bilinear")
+                        plt.axis("off")
+                        plt.tight_layout(pad = 0)
+
+                        st.write(figure)
+
+                    if len(data_df) > 16:
+                        max_articles = 16
+                    else:
+                        max_articles = -1
+                    
+
+                    for _ , article in data_df.iloc[1:max_articles,:].iterrows():
+                        with col4_1:
+                            if article['SA'] > data_df.iloc[0,1]:
+                                st.markdown('<p class="green_arrow">\u25B2</p>', unsafe_allow_html=True)
+                            else:
+                                st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
+                        with col4:
+                            article['title'][:80]
+                        with col5:
+                            st.write('show article')
+
+                #     with col4:
+                #         if st.checkbox('Predicted Topics', key=keys):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
+                #     with col5:
+                #         if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
+                #     with col6:
+                #         if st.checkbox('Word Cloud', key=keys*3):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
 
 #if st.button('Click me') :
     
@@ -169,6 +266,34 @@ with my_expander:
     sentiment_params = {
             "sample": my_dict
                 }
+
+
+# Add time to some text
+# t = st.empty()
+# for i in range(len(text) + 1):
+#     # heading 2
+#     t.markdown("## %s" % text[0:i])
+#     time.sleep(0.05) # decrease speed before presentation
+
+
+
+#get some logos
+
+        # src = news['url']
+        # domain = urlparse(src).netloc.strip("www.")
+        # url = f"https://autocomplete.clearbit.com/v1/companies/suggest?query={domain}"
+        # headers = {
+        #     'Accept': '*/*',
+        #     'Host': 'autocomplete.clearbit.com',
+        #     'Origin': 'https://clearbit.com',
+        #     'Referer': 'https://clearbit.com/logo',
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
+        #     'Accept-Language': 'pt-PT,pt;q=0.8,en;q=0.5,en-US;q=0.3',
+        #     'Connection':'keep-alive',
+        #     'Accept-Encoding': 'gzip, deflate, br'
+        # }
+        # response = requests.get(url, headers=headers)
+
 
   #  st.markdown('''  
   #  ## Sentiment Analysis:
