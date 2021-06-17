@@ -14,6 +14,155 @@ import SessionState
 import random
 from PIL import Image
 
+def get_news(search='simple'):
+    if search == "simple":
+        modifier = 1
+        news_params = {
+        "query": query,
+        }
+    else:
+        news_params = {
+           "query": query,
+           "source": source,
+           "date_from": date_from
+           }
+        modifier = 2
+    
+    session_state = SessionState.get(checkboxed=False)
+    if st.button('Get news!', key=1*modifier) or session_state.checkboxed:
+        session_state.checkboxed = True
+        ## Retrieving the prediction from the **JSON** returned by the API...
+        # url = "https://api-s4zpk52g3a-ew.a.run.app/"
+        # endpoint = "search"
+        # response = requests.get(url + endpoint, params=news_params)
+        # news_list = response.json()
+
+        ## Retrieving the prediction from the **JSON** placeholder...
+        get_sources = open('./data/example_search_output.json',) 
+        news_list = json.load(get_sources)
+        get_sources.close()
+
+        hr = f'<hr class="divider"></hr>'
+        st.markdown(hr, unsafe_allow_html=True)
+
+        # Organizing buttons in columns
+        for keys, news in news_list.items():
+            col1,col2,col3 = st.beta_columns([0.1,2,0.3])
+
+            src = news['url']  
+            domain = urlparse(src).netloc.strip("www.")
+            logo_url = get_logos(domain)
+
+            with col1:
+                logo_img = f'<img class="image_logo" src="{logo_url}">'
+                st.markdown(logo_img, unsafe_allow_html=True)        
+            with col2:
+                news_title = f'<p class="article-title">{news["title"]}</h2>'
+                st.markdown(news_title, unsafe_allow_html=True)
+            with col3:
+                st.write(f'[Read from source]({news["url"]})')
+            
+            my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
+            
+            with my_expander:
+                col1,col2 = st.beta_columns([1,5])
+                col7, col8 = st.beta_columns([1,1])
+                col9, col10 = st.beta_columns([1,1])
+                col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
+
+                with col1:
+                    if st.button("Make Prediction", key=keys*modifier):
+                        # Import .json
+                        # # df = pd.Dataframe()
+                        get_sources = open('./data/example_pd_topics.json')
+                        data = json.load(get_sources)
+                        data_df = json.loads(data['data'])
+                        data_df = pd.DataFrame(data_df)
+                        topic = data['topic']
+                        with col2:
+                            if data_df.iloc[0,1] > data_df.SA.mean():
+                                if data_df.iloc[0,1] > 0:
+                                    st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
+
+                                else:
+                                    st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
+                                    
+                            else:
+                                if data_df.iloc[0,1] > 0:
+                                    st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
+                                    
+                                else:
+                                    st.markdown('<p class="article-sub-title">This article is more negative than the average</p>', unsafe_allow_html=True)
+                        
+                        with col9:
+                            st.write('Similar Articles:')
+
+                            comment_words = ' '.join(topic)
+                            
+                            def grey_color_func(word, font_size, position, orientation, random_state=None,
+                                                **kwargs):
+                                return "hsl(0, 0%%, %d%%)" % random.randint(60, 100)
+
+                            wordcloud = WordCloud(width = 800, height = 800,
+                                            background_color ='black',
+                                            min_font_size = 10).generate(comment_words)
+
+                            # plot the WordCloud image	
+
+                        if len(data_df) > 14:
+                            max_articles = 14
+                        else:
+                            max_articles = -1
+                        
+
+                        for _ , article in data_df.iloc[1:max_articles,:].iterrows():
+                            with col4_1:
+                                if article['SA'] > data_df.iloc[0,1]:
+                                    st.markdown('<p class="green_arrow">\u25B2</p>', unsafe_allow_html=True)
+                                else:
+                                    st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
+                            with col4:
+                                article['title'][:80]
+                            with col5:
+                                st.write('show article')
+
+                        with col6:
+
+                            figure = plt.figure()
+                            sorted_df = data_df.sort_values('SA').reset_index()
+                            my_kde = sns.kdeplot(
+                                sorted_df.SA,
+                                shade=True,
+                                color='grey'
+                                #marker='o',
+                                #markevery=[sorted_df[sorted_df['index'] == '0'].index[0]]
+                                )
+                            
+                            y = np.linspace(0,1)
+                            x = y*0 + data_df.iloc[0,1]
+
+                            if data_df.iloc[0,1] > 0:
+                                color = [0,data_df.iloc[0,1],0]
+                            else:
+                                color = [-data_df.iloc[0,1],0,0]
+
+                            plt.plot(x,y, color=color)
+                            plt.axis('off')
+
+                            plt.xlim(-1,1)
+                            st.write(figure)
+
+                            figure = plt.figure(figsize = (8, 8), facecolor = None)
+                            plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
+                                    interpolation="bilinear")
+                            plt.axis("off")
+                            plt.tight_layout(pad = 0)
+
+                            st.write(figure)
+
+    else:
+        st.markdown('<p class="small-font">Click this button to get a list of 10 news based on a simple query</p>', unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="The Big Picture App",
     #page_icon="🧊",
@@ -37,172 +186,7 @@ st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspect
 
 query = st.text_input("Search terms (english only): ")
 
-session_state = SessionState.get(checkboxed=False)
-if st.button('Get news!', key=1) or session_state.checkboxed:
-    session_state.checkboxed = True
-    ## Retrieving the prediction from the **JSON** returned by the API...
-    # url = "https://api-s4zpk52g3a-ew.a.run.app/"
-    # endpoint = "search"
-    # news_params = {
-    #        "query": query,
-    #        }
-    # response = requests.get(url + endpoint, params=news_params)
-    # news_list = response.json()
-
-    ## Retrieving the prediction from the **JSON** placeholder...
-    get_sources = open('./data/example_search_output.json',) 
-    news_list = json.load(get_sources)
-    get_sources.close()
-
-    hr = f'<hr class="divider"></hr>'
-    st.markdown(hr, unsafe_allow_html=True)
-
-    # Organizing buttons in columns
-    for keys, news in news_list.items():
-        col1,col2,col3 = st.beta_columns([0.1,2,0.3])
-
-        src = news['url']  
-        domain = urlparse(src).netloc.strip("www.")
-        logo_url = get_logos(domain)
-
-        with col1:
-            logo_img = f'<img class="image_logo" src="{logo_url}">'
-            st.markdown(logo_img, unsafe_allow_html=True)        
-        with col2:
-            news_title = f'<p class="article-title">{news["title"]}</h2>'
-            st.markdown(news_title, unsafe_allow_html=True)
-        with col3:
-            st.write(f'[Read from source]({news["url"]})')
-        
-        my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
-        
-        with my_expander:
-            col1,col2 = st.beta_columns([1,5])
-            col7, col8 = st.beta_columns([1,1])
-            col9, col10 = st.beta_columns([1,1])
-            col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
-
-            with col1:
-                if st.button("Make Prediction", key=keys):
-                    # Import .json
-                    # # df = pd.Dataframe()
-                    get_sources = open('./data/example_pd_topics.json')
-                    data = json.load(get_sources)
-                    data_df = json.loads(data['data'])
-                    data_df = pd.DataFrame(data_df)
-                    topic = data['topic']
-                    with col2:
-                        if data_df.iloc[0,1] > data_df.SA.mean():
-                            if data_df.iloc[0,1] > 0:
-                                st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
-
-                            else:
-                                st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
-                                
-                        else:
-                            if data_df.iloc[0,1] > 0:
-                                st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
-                                
-                            else:
-                                st.markdown('<p class="article-sub-title">This article is more negative than the average</p>', unsafe_allow_html=True)
-                    
-                    with col9:
-                        st.write('Similar Articles:')
-
-                        comment_words = ' '.join(topic)
-                        
-                        def grey_color_func(word, font_size, position, orientation, random_state=None,
-                                            **kwargs):
-                            return "hsl(0, 0%%, %d%%)" % random.randint(60, 100)
-
-                        wordcloud = WordCloud(width = 800, height = 800,
-                                        background_color ='black',
-                                        min_font_size = 10).generate(comment_words)
-
-                        # plot the WordCloud image	
-
-                    if len(data_df) > 14:
-                        max_articles = 14
-                    else:
-                        max_articles = -1
-                    
-
-                    for _ , article in data_df.iloc[1:max_articles,:].iterrows():
-                        with col4_1:
-                            if article['SA'] > data_df.iloc[0,1]:
-                                st.markdown('<p class="green_arrow">\u25B2</p>', unsafe_allow_html=True)
-                            else:
-                                st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
-                        with col4:
-                            article['title'][:80]
-                        with col5:
-                            st.write('show article')
-
-                    with col6:
-
-                        figure = plt.figure()
-                        sorted_df = data_df.sort_values('SA').reset_index()
-                        my_kde = sns.kdeplot(
-                            sorted_df.SA,
-                            shade=True,
-                            color='grey'
-                            #marker='o',
-                            #markevery=[sorted_df[sorted_df['index'] == '0'].index[0]]
-                            )
-                        
-                        y = np.linspace(0,1)
-                        x = y*0 + data_df.iloc[0,1]
-
-                        if data_df.iloc[0,1] > 0:
-                            color = [0,data_df.iloc[0,1],0]
-                        else:
-                            color = [-data_df.iloc[0,1],0,0]
-
-                        plt.plot(x,y, color=color)
-                        plt.axis('off')
-
-                        plt.xlim(-1,1)
-                        st.write(figure)
-
-                        figure = plt.figure(figsize = (8, 8), facecolor = None)
-                        plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
-                                interpolation="bilinear")
-                        plt.axis("off")
-                        plt.tight_layout(pad = 0)
-
-                        st.write(figure)
-                #     with col4:
-                #         if st.checkbox('Predicted Topics', key=keys):
-                #             st.write('''
-                # This code will only be executed when the check box is checked
-
-                # Streamlit elements injected inside of this block of code will \
-                # not get displayed unless it is checked
-                # ''')
-                #     with col5:
-                #         if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
-                #             st.write('''
-                # This code will only be executed when the check box is checked
-
-                # Streamlit elements injected inside of this block of code will \
-                # not get displayed unless it is checked
-                # ''')
-                #     with col6:
-                #         if st.checkbox('Word Cloud', key=keys*3):
-                #             st.write('''
-                # This code will only be executed when the check box is checked
-
-                # Streamlit elements injected inside of this block of code will \
-                # not get displayed unless it is checked
-                # ''')
-
-#if st.button('Click me') :
-    
- #   if st.button("Click me too !"):
-  #      st.write("Hello world")
-
-else:
-    st.markdown('<p class="small-font">Click this button to get a list of 10 news based on a simple query</p>', unsafe_allow_html=True)
+get_news()
 
 st.markdown('''  
 ## Advanced query:
@@ -228,48 +212,51 @@ with my_expander:
         sources_list)
     source = ','.join(source)
 
-    # Calling our Big Picture API using the `requests` package and returning a value with a button
-    if st.button('Get news!', key=2):
-        # Retrieving the prediction from the **JSON** returned by the API...
-        #url = "https://api-s4zpk52g3a-ew.a.run.app/"
-        #endpoint = "search"
-        #news_params = {
-        #    "query": query,
-        #    "title": title,
-        #    "source": source,
-        #    "label" : label,
-        #    "date_from": date_from
-        #    }
+# Calling our Big Picture API using the `requests` package and returning a value with a button
+get_news('advanced')
+    
+    
+    # if st.button('Get news!', key=2):
+    #     # Retrieving the prediction from the **JSON** returned by the API...
+    #     #url = "https://api-s4zpk52g3a-ew.a.run.app/"
+    #     #endpoint = "search"
+    #     #news_params = {
+    #     #    "query": query,
+    #     #    "title": title,
+    #     #    "source": source,
+    #     #    "label" : label,
+    #     #    "date_from": date_from
+    #     #    }
 
-        # response = requests.get(url + endpoint, params=news_params)
-        # news_list = response.json()
+    #     # response = requests.get(url + endpoint, params=news_params)
+    #     # news_list = response.json()
 
-        ## Retrieving the prediction from the **JSON** placeholder...
-        get_sources = open('./data/example_search_output.json',) 
-        news_list = json.load(get_sources)
-        get_sources.close()
+    #     ## Retrieving the prediction from the **JSON** placeholder...
+    #     get_sources = open('./data/example_search_output.json',) 
+    #     news_list = json.load(get_sources)
+    #     get_sources.close()
 
-        for keys, news in news_list.items():
-            col1,col2,col3 = st.beta_columns(3)
-            with col1:
-                st.write(f'{news["title"]}')
-            with col2:
-                if st.button(f'Get sentiment analysis report', key=int(keys)+11):
-                        # predict sentiment analysis based on the key for this news article 
-                        pass
-            with col3:
-                st.write(f'[Read this news article]({news["url"]})')
-    else:
-        st.markdown('<p class="small-font">Click this button to get a list of 10 news based on your advanced search parameters.</p>', unsafe_allow_html=True)
+    #     for keys, news in news_list.items():
+    #         col1,col2,col3 = st.beta_columns(3)
+    #         with col1:
+    #             st.write(f'{news["title"]}')
+    #         with col2:
+    #             if st.button(f'Get sentiment analysis report', key=int(keys)+11):
+    #                     # predict sentiment analysis based on the key for this news article 
+    #                     pass
+    #         with col3:
+    #             st.write(f'[Read this news article]({news["url"]})')
+    # else:
+    #     st.markdown('<p class="small-font">Click this button to get a list of 10 news based on your advanced search parameters.</p>', unsafe_allow_html=True)
 
-    # my_dict = news_list[0]
-    my_dict = {}
+    # # my_dict = news_list[0]
+    # my_dict = {}
 
-    # Dictionary containing the parameters for our Sentiment Analysis (from or model)...
-    endpoint = "predict"
-    sentiment_params = {
-            "sample": my_dict
-                }
+    # # Dictionary containing the parameters for our Sentiment Analysis (from or model)...
+    # endpoint = "predict"
+    # sentiment_params = {
+    #         "sample": my_dict
+    #             }
 
 
 # Add time to some text
