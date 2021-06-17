@@ -1,11 +1,16 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import seaborn as sns
 import requests
 import time
 import json
 import pickle
 import SessionState
+import random
+
 
 st.set_page_config(
     page_title="The Big Picture App",
@@ -62,38 +67,129 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
         my_expander = st.beta_expander("Get sentiment analysis report for this news article", expanded=False)
         
         with my_expander:
-            col1,col2 = st.beta_columns([1,7])
-            col4,col5,col6 = st.beta_columns([2,2,2])
+            col1,col2 = st.beta_columns([1,1])
+            col7, col8 = st.beta_columns([1,1])
+            col9, col10 = st.beta_columns([1,1])
+            col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
+
             with col1:
                 if st.button("Make Prediction", key=keys):
                     # Import .json
                     # # df = pd.Dataframe()
-                    with col2:
-                        st.write("Predicting....")
-                    with col4:
-                        if st.checkbox('Predicted Topics', key=keys):
-                            st.write('''
-                This code will only be executed when the check box is checked
-
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
-                    with col5:
-                        if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
-                            st.write('''
-                This code will only be executed when the check box is checked
-
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
+                    get_sources = open('./data/example_pd_topics.json')
+                    data = json.load(get_sources)
+                    data_df = json.loads(data['data'])
+                    data_df = pd.DataFrame(data_df)
+                    topic = data['topic']
+                    
                     with col6:
-                        if st.checkbox('Word Cloud', key=keys*3):
-                            st.write('''
-                This code will only be executed when the check box is checked
+                        
+                        if data_df.iloc[0,1] > data_df.SA.mean():
+                            if data_df.iloc[0,1] > 0:
+                                st.write(
+                                    'This article is more positive than the average for this topic'
+                                    )
+                            else:
+                                st.write(
+                                    'This article is less negative than the average for this topic'
+                                    )
+                        else:
+                            if data_df.iloc[0,1] > 0:
+                                st.write(
+                                    'This article is less positive than the average'
+                                    )
+                            else:
+                                st.write(
+                                    'This article is more negative than the average'
+                                    )
 
-                Streamlit elements injected inside of this block of code will \
-                not get displayed unless it is checked
-                ''')
+                        figure = plt.figure()
+                        sorted_df = data_df.sort_values('SA').reset_index()
+                        my_kde = sns.kdeplot(
+                            sorted_df.SA,
+                            shade=True,
+                            color='grey'
+                            #marker='o',
+                            #markevery=[sorted_df[sorted_df['index'] == '0'].index[0]]
+                            )
+                        
+                        y = np.linspace(0,1)
+                        x = y*0 + data_df.iloc[0,1]
+
+                        if data_df.iloc[0,1] > 0:
+                            color = [0,data_df.iloc[0,1],0]
+                        else:
+                            color = [-data_df.iloc[0,1],0,0]
+
+                        plt.plot(x,y, color=color)
+                        plt.axis('off')
+
+                        plt.xlim(-1,1)
+                        st.write(figure)
+                    with col9:
+                        st.write('Similar Articles:')
+
+                        comment_words = ' '.join(topic)
+                        
+                        def grey_color_func(word, font_size, position, orientation, random_state=None,
+                                            **kwargs):
+                            return "hsl(0, 0%%, %d%%)" % random.randint(60, 100)
+
+                        wordcloud = WordCloud(width = 800, height = 800,
+                                        background_color ='black',
+                                        min_font_size = 10).generate(comment_words)
+
+                        # plot the WordCloud image	
+                    with col6:				
+                        figure = plt.figure(figsize = (8, 8), facecolor = None)
+                        plt.imshow(wordcloud.recolor(color_func=grey_color_func, random_state=3),
+                                interpolation="bilinear")
+                        plt.axis("off")
+                        plt.tight_layout(pad = 0)
+
+                        st.write(figure)
+
+                    if len(data_df) > 16:
+                        max_articles = 16
+                    else:
+                        max_articles = -1
+                    
+
+                    for _ , article in data_df.iloc[1:max_articles,:].iterrows():
+                        with col4_1:
+                            if article['SA'] > data_df.iloc[0,1]:
+                                st.write('\u25B2')
+                            else:
+                                st.write('\u25BC')
+                        with col4:
+                            article['title'][:80]
+                        with col5:
+                            st.write('show article')
+
+                #     with col4:
+                #         if st.checkbox('Predicted Topics', key=keys):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
+                #     with col5:
+                #         if st.checkbox('Sentiment Analysis and Similar Articles', key=keys*2):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
+                #     with col6:
+                #         if st.checkbox('Word Cloud', key=keys*3):
+                #             st.write('''
+                # This code will only be executed when the check box is checked
+
+                # Streamlit elements injected inside of this block of code will \
+                # not get displayed unless it is checked
+                # ''')
 
 #if st.button('Click me') :
     
