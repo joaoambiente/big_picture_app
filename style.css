@@ -7,6 +7,11 @@
     color:rgb(255, 255, 255);
 }
 
+.article-sub-title {
+    font-size:20px !important;
+    color:rgb(255, 255, 255);
+}
+
 .divider {
     height: 12px;
     background-color:rgb(255, 255, 255);
