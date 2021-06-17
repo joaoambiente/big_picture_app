@@ -159,9 +159,9 @@ if st.button('Get news!', key=1) or session_state.checkboxed:
                     for _ , article in data_df.iloc[1:max_articles,:].iterrows():
                         with col4_1:
                             if article['SA'] > data_df.iloc[0,1]:
-                                st.write('\u25B2')
+                                st.markdown('<p class="green_arrow">\u25B2</p>', unsafe_allow_html=True)
                             else:
-                                st.write('\u25BC')
+                                st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
                         with col4:
                             article['title'][:80]
                         with col5:
