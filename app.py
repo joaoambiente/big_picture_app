@@ -28,7 +28,7 @@ def get_news(search='simple'):
         modifier = 2
     
     session_state = SessionState.get(checkboxed=False)
-    if st.button('Get news', key=1*modifier) or session_state.checkboxed:
+    if (st.button('Get news!', key=1*modifier) and news_params['query']) or session_state.checkboxed:
         session_state.checkboxed = True
         ## Retrieving the prediction from the **JSON** returned by the API...
         url = "https://api-s4zpk52g3a-ew.a.run.app/"
@@ -70,24 +70,31 @@ def get_news(search='simple'):
                 col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
 
                 with col1:
-                    if st.button("Get Sentiment Analysis Report", key=keys*modifier):
-                        # Import .json
-                        # # df = pd.Dataframe()
-                        get_sources = open('./data/example_pd_topics.json')
-                        data = json.load(get_sources)
+                    if st.button("Make Prediction", key=keys*modifier):
+
+                        url = "http://35.184.150.29:8080/predict"
+                        response = requests.post(url, json=news)
+                        data = response.json()
+                        topic = data['topic']
                         data_df = json.loads(data['data'])
                         data_df = pd.DataFrame(data_df)
-                        topic = data['topic']
+
+                        #get_sources = open('./data/response_1623996348612.json')
+                        #data = json.load(get_sources)
+                        #data_df = json.loads(data['data'])
+                        #data_df = pd.DataFrame(data_df)
+                        #topic = data['topic']
+
                         with col2:
-                            if data_df.iloc[0,1] > data_df.SA.mean():
-                                if data_df.iloc[0,1] > 0:
+                            if data_df.iloc[0,5] > data_df.SA.mean():
+                                if data_df.iloc[0,5] > 0:
                                     st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
 
                                 else:
                                     st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
                                     
                             else:
-                                if data_df.iloc[0,1] > 0:
+                                if data_df.iloc[0,5] > 0:
                                     st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
                                     
                                 else:
@@ -116,14 +123,14 @@ def get_news(search='simple'):
 
                         for _ , article in data_df.iloc[1:max_articles,:].iterrows():
                             with col4_1:
-                                if article['SA'] > data_df.iloc[0,1]:
+                                if article['SA'] > data_df.iloc[0,5]:
                                     st.markdown('<p class="green_arrow">\u25B2</p>', unsafe_allow_html=True)
                                 else:
                                     st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
                             with col4:
                                 article['title'][:80]
                             with col5:
-                                st.write('show article')
+                                st.write(f'[show article]({article["url"]})')
 
                         with col6:
 
@@ -138,12 +145,12 @@ def get_news(search='simple'):
                                 )
                             
                             y = np.linspace(0,1)
-                            x = y*0 + data_df.iloc[0,1]
+                            x = y*0 + data_df.iloc[0,5]
 
-                            if data_df.iloc[0,1] > 0:
-                                color = [0,data_df.iloc[0,1],0]
+                            if data_df.iloc[0,5] > 0:
+                                color = [0,data_df.iloc[0,5],0]
                             else:
-                                color = [-data_df.iloc[0,1],0,0]
+                                color = [-data_df.iloc[0,5],0,0]
 
                             plt.plot(x,y, color=color)
                             plt.axis('off')
