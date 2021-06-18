@@ -14,11 +14,13 @@ import random
 from PIL import Image
 
 def get_news(search='simple'):
+    session_state = SessionState.get(checkboxed=False, checkboxed2=False)
     if search == "simple":
         modifier = 1
         news_params = {
         "query": query,
         }
+        session_condition = session_state.checkboxed
     else:
         news_params = {
            "query": query,
@@ -26,10 +28,13 @@ def get_news(search='simple'):
            "date_from": date_from
            }
         modifier = 2
+        session_condition = session_state.checkboxed2
     
-    session_state = SessionState.get(checkboxed=False)
-    if (st.button('Get news!', key=1*modifier) and news_params['query']) or session_state.checkboxed:
-        session_state.checkboxed = True
+    if (st.button('Get news', key=100*modifier) and news_params['query']) or session_condition:
+        if search == "simple":
+            session_state.checkboxed = True
+        else:
+            session_state.checkboxed2 = True
         ## Retrieving the prediction from the **JSON** returned by the API...
         url = "https://api-s4zpk52g3a-ew.a.run.app/"
         endpoint = "search"
@@ -37,9 +42,9 @@ def get_news(search='simple'):
         news_list = response.json()
 
         ## Retrieving the prediction from the **JSON** placeholder...
-        # get_sources = open('./data/example_search_output.json',) 
-        # news_list = json.load(get_sources)
-        # get_sources.close()
+        #get_sources = open('./data/example_search_output.json',) 
+        #news_list = json.load(get_sources)
+        #get_sources.close()
 
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
@@ -70,7 +75,7 @@ def get_news(search='simple'):
                 col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
 
                 with col1:
-                    if st.button("Make Prediction", key=keys*modifier):
+                    if st.button("Analyse", key=keys*modifier):
 
                         url = "http://35.184.150.29:8080/predict"
                         response = requests.post(url, json=news)
@@ -85,20 +90,20 @@ def get_news(search='simple'):
                         #data_df = pd.DataFrame(data_df)
                         #topic = data['topic']
 
-                        with col2:
-                            if data_df.iloc[0,5] > data_df.SA.mean():
-                                if data_df.iloc[0,5] > 0:
-                                    st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
+                        # with col2:
+                        #     if data_df.iloc[0,5] > data_df.SA.mean():
+                        #         if data_df.iloc[0,5] > 0:
+                        #             st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
 
-                                else:
-                                    st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
+                        #         else:
+                        #             st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
                                     
-                            else:
-                                if data_df.iloc[0,5] > 0:
-                                    st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
+                        #     else:
+                        #         if data_df.iloc[0,5] > 0:
+                        #             st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
                                     
-                                else:
-                                    st.markdown('<p class="article-sub-title">This article is more negative than the average</p>', unsafe_allow_html=True)
+                        #         else:
+                        #             st.markdown('<p class="article-sub-title">This article is more negative than the average</p>', unsafe_allow_html=True)
                         
                         with col9:
                             st.write('Similar Articles:')
@@ -188,7 +193,7 @@ with col_b:
     st.image(image, use_column_width=False,width=250)
 
 st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspectives on the news with sentiment analysis.</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: white;'>Search for news -->  Choose your article --> Know where your article stands amongst similar articles</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: white;'>Search for news  >  Choose your article  >  Know where your article stands amongst similar articles</h1>", unsafe_allow_html=True)
 
 query = st.text_input("Search terms (english only): ")
 
