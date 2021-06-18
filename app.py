@@ -61,8 +61,12 @@ def get_news(search='simple'):
                 logo_img = f'<img class="image_logo" src="{logo_url}">'
                 st.markdown(logo_img, unsafe_allow_html=True)        
             with col2:
-                news_title = f'<p class="article-title">{news["publishedAt"]+" | "+news["title"]}</h2>'
-                st.markdown(news_title, unsafe_allow_html=True)
+                try:
+                    news_title = f'<p class="article-title">{news["publishedAt"]+" | "+news["title"]}</h2>'
+                    st.markdown(news_title, unsafe_allow_html=True)
+                except:
+                    news_title = f'<p class="article-title">{news["title"]}</h2>'
+                    st.markdown(news_title, unsafe_allow_html=True)
             with col3:
                 st.write(f'[Read from source]({news["url"]})')
             
