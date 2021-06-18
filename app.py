@@ -36,15 +36,15 @@ def get_news(search='simple'):
         else:
             session_state.checkboxed2 = True
         ## Retrieving the prediction from the **JSON** returned by the API...
-        # url = "https://api-s4zpk52g3a-ew.a.run.app/"
-        # endpoint = "search"
-        # response = requests.get(url + endpoint, params=news_params)
-        # news_list = response.json()
+        url = "https://api-s4zpk52g3a-ew.a.run.app/"
+        endpoint = "search"
+        response = requests.get(url + endpoint, params=news_params)
+        news_list = response.json()
 
         ## Retrieving the prediction from the **JSON** placeholder...
-        get_sources = open('./data/example_search_output.json',) 
-        news_list = json.load(get_sources)
-        get_sources.close()
+        # get_sources = open('./data/example_search_output.json',) 
+        # news_list = json.load(get_sources)
+        # get_sources.close()
 
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
