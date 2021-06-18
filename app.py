@@ -28,18 +28,18 @@ def get_news(search='simple'):
         modifier = 2
     
     session_state = SessionState.get(checkboxed=False)
-    if st.button('Get news!', key=1*modifier) or session_state.checkboxed:
+    if st.button('Get news', key=1*modifier) or session_state.checkboxed:
         session_state.checkboxed = True
         ## Retrieving the prediction from the **JSON** returned by the API...
-        # url = "https://api-s4zpk52g3a-ew.a.run.app/"
-        # endpoint = "search"
-        # response = requests.get(url + endpoint, params=news_params)
-        # news_list = response.json()
+        url = "https://api-s4zpk52g3a-ew.a.run.app/"
+        endpoint = "search"
+        response = requests.get(url + endpoint, params=news_params)
+        news_list = response.json()
 
         ## Retrieving the prediction from the **JSON** placeholder...
-        get_sources = open('./data/example_search_output.json',) 
-        news_list = json.load(get_sources)
-        get_sources.close()
+        # get_sources = open('./data/example_search_output.json',) 
+        # news_list = json.load(get_sources)
+        # get_sources.close()
 
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
@@ -70,7 +70,7 @@ def get_news(search='simple'):
                 col4_1, col4,col5,col6 = st.beta_columns([0.2,4,1,2])
 
                 with col1:
-                    if st.button("Make Prediction", key=keys*modifier):
+                    if st.button("Get Sentiment Analysis Report", key=keys*modifier):
                         # Import .json
                         # # df = pd.Dataframe()
                         get_sources = open('./data/example_pd_topics.json')
@@ -180,8 +180,8 @@ with col_b:
     image = Image.open('images/big_picture_logo.png')
     st.image(image, use_column_width=False,width=250)
 
-st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspectives on the news... with AI!</h1>", unsafe_allow_html=True)
-
+st.markdown("<h2 style='text-align: center; color: white;'>Enhance your perspectives on the news with sentiment analysis.</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: white;'>Search for news -->  Choose your article --> Know where your article stands amongst similar articles</h1>", unsafe_allow_html=True)
 
 query = st.text_input("Search terms (english only): ")
 
