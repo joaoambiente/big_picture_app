@@ -77,18 +77,18 @@ def get_news(search='simple'):
                 with col1:
                     if st.button("Analyse", key=keys*modifier):
 
-                        # url = "http://35.184.150.29:8080/predict"
-                        # response = requests.post(url, json=news)
-                        # data = response.json()
-                        # topic = data['topic']
-                        # data_df = json.loads(data['data'])
-                        # data_df = pd.DataFrame(data_df)
-
-                        get_sources = open('./data/response_1623996348612.json')
-                        data = json.load(get_sources)
+                        url = "http://35.184.150.29:8080/predict"
+                        response = requests.post(url, json=news)
+                        data = response.json()
+                        topic = data['topic']
                         data_df = json.loads(data['data'])
                         data_df = pd.DataFrame(data_df)
-                        topic = data['topic']
+
+                        # get_sources = open('./data/response_1623996348612.json')
+                        # data = json.load(get_sources)
+                        # data_df = json.loads(data['data'])
+                        # data_df = pd.DataFrame(data_df)
+                        # topic = data['topic']
 
                         # with col2:
                         #     if data_df.iloc[0,5] > data_df.SA.mean():
