@@ -36,15 +36,15 @@ def get_news(search='simple'):
         else:
             session_state.checkboxed2 = True
         ## Retrieving the prediction from the **JSON** returned by the API...
-        url = "https://api-s4zpk52g3a-ew.a.run.app/"
-        endpoint = "search"
-        response = requests.get(url + endpoint, params=news_params)
-        news_list = response.json()
+        # url = "https://api-s4zpk52g3a-ew.a.run.app/"
+        # endpoint = "search"
+        # response = requests.get(url + endpoint, params=news_params)
+        # news_list = response.json()
 
         ## Retrieving the prediction from the **JSON** placeholder...
-        #get_sources = open('./data/example_search_output.json',) 
-        #news_list = json.load(get_sources)
-        #get_sources.close()
+        get_sources = open('./data/example_search_output.json',) 
+        news_list = json.load(get_sources)
+        get_sources.close()
 
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
@@ -61,7 +61,7 @@ def get_news(search='simple'):
                 logo_img = f'<img class="image_logo" src="{logo_url}">'
                 st.markdown(logo_img, unsafe_allow_html=True)        
             with col2:
-                news_title = f'<p class="article-title">{news["title"]}</h2>'
+                news_title = f'<p class="article-title">{news["publishedAt"]+" | "+news["title"]}</h2>'
                 st.markdown(news_title, unsafe_allow_html=True)
             with col3:
                 st.write(f'[Read from source]({news["url"]})')
@@ -77,18 +77,18 @@ def get_news(search='simple'):
                 with col1:
                     if st.button("Analyse", key=keys*modifier):
 
-                        url = "http://35.184.150.29:8080/predict"
-                        response = requests.post(url, json=news)
-                        data = response.json()
-                        topic = data['topic']
+                        # url = "http://35.184.150.29:8080/predict"
+                        # response = requests.post(url, json=news)
+                        # data = response.json()
+                        # topic = data['topic']
+                        # data_df = json.loads(data['data'])
+                        # data_df = pd.DataFrame(data_df)
+
+                        get_sources = open('./data/response_1623996348612.json')
+                        data = json.load(get_sources)
                         data_df = json.loads(data['data'])
                         data_df = pd.DataFrame(data_df)
-
-                        #get_sources = open('./data/response_1623996348612.json')
-                        #data = json.load(get_sources)
-                        #data_df = json.loads(data['data'])
-                        #data_df = pd.DataFrame(data_df)
-                        #topic = data['topic']
+                        topic = data['topic']
 
                         # with col2:
                         #     if data_df.iloc[0,5] > data_df.SA.mean():
@@ -133,7 +133,7 @@ def get_news(search='simple'):
                                 else:
                                     st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
                             with col4:
-                                article['title'][:80]
+                                article["publishedAt"]+" | "+article['title'][:60]
                             with col5:
                                 st.write(f'[show article]({article["url"]})')
 
@@ -148,8 +148,8 @@ def get_news(search='simple'):
                                 #marker='o',
                                 #markevery=[sorted_df[sorted_df['index'] == '0'].index[0]]
                                 )
-                            
-                            y = np.linspace(0,1)
+
+                            y = np.linspace(0,100)
                             x = y*0 + data_df.iloc[0,5]
 
                             if data_df.iloc[0,5] > 0:
@@ -157,10 +157,13 @@ def get_news(search='simple'):
                             else:
                                 color = [-data_df.iloc[0,5],0,0]
 
+                            plt.xlim(-1,1)
+                            axes = plt.gca()
+                            plt.ylim(axes.get_ylim())
+
                             plt.plot(x,y, color=color)
                             plt.axis('off')
 
-                            plt.xlim(-1,1)
                             st.write(figure)
 
                             figure = plt.figure(figsize = (8, 8), facecolor = None)
