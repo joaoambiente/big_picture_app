@@ -36,15 +36,15 @@ def get_news(search='simple'):
         else:
             session_state.checkboxed2 = True
         ## Retrieving the prediction from the **JSON** returned by the API...
-        url = "https://api-s4zpk52g3a-ew.a.run.app/"
-        endpoint = "search"
-        response = requests.get(url + endpoint, params=news_params)
-        news_list = response.json()
+        #url = "https://api-s4zpk52g3a-ew.a.run.app/"
+        #endpoint = "search"
+        #response = requests.get(url + endpoint, params=news_params)
+        #news_list = response.json()
 
         ## Retrieving the prediction from the **JSON** placeholder...
-        # get_sources = open('./data/example_search_output.json',) 
-        # news_list = json.load(get_sources)
-        # get_sources.close()
+        get_sources = open('./data/example_search_output.json',) 
+        news_list = json.load(get_sources)
+        get_sources.close()
 
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
@@ -77,18 +77,18 @@ def get_news(search='simple'):
                 with col1:
                     if st.button("Analyse", key=keys*modifier):
 
-                        url = "http://35.184.150.29:8080/predict"
-                        response = requests.post(url, json=news)
-                        data = response.json()
-                        topic = data['topic']
+                        #url = "http://35.184.150.29:8080/predict"
+                        #response = requests.post(url, json=news)
+                        #data = response.json()
+                        #topic = data['topic']
+                        #data_df = json.loads(data['data'])
+                        #data_df = pd.DataFrame(data_df)
+
+                        get_sources = open('./data/response_1623996348612.json')
+                        data = json.load(get_sources)
                         data_df = json.loads(data['data'])
                         data_df = pd.DataFrame(data_df)
-
-                        # get_sources = open('./data/response_1623996348612.json')
-                        # data = json.load(get_sources)
-                        # data_df = json.loads(data['data'])
-                        # data_df = pd.DataFrame(data_df)
-                        # topic = data['topic']
+                        topic = data['topic']
 
                         # with col2:
                         #     if data_df.iloc[0,5] > data_df.SA.mean():
@@ -133,7 +133,16 @@ def get_news(search='simple'):
                                 else:
                                     st.markdown('<p class="red_arrow">\u25BC</p>', unsafe_allow_html=True)
                             with col4:
-                                article["publishedAt"]+" | "+article['title'][:60]
+                                try:
+                                    if len(article['title']) > 60:
+                                        article["publishedAt"]+" | "+article['title'][:60]
+                                    else:
+                                        article["publishedAt"]+" | "+article['title']
+                                except:
+                                    if len(article['title']) > 60:
+                                        article['title'][:60]
+                                    else:
+                                        article['title']
                             with col5:
                                 st.write(f'[show article]({article["url"]})')
 
