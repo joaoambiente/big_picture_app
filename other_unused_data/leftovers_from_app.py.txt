@@ -41,6 +41,11 @@ def get_news(search='simple'):
         response = requests.get(url + endpoint, params=news_params)
         news_list = response.json()
 
+        ## Retrieving the prediction from the **JSON** placeholder...
+        # get_sources = open('./data/example_search_output.json',) 
+        # news_list = json.load(get_sources)
+        # get_sources.close()
+
         hr = f'<hr class="divider"></hr>'
         st.markdown(hr, unsafe_allow_html=True)
 
@@ -83,6 +88,27 @@ def get_news(search='simple'):
                         data_df = json.loads(data['data'])
                         data_df = pd.DataFrame(data_df)
 
+                        # get_sources = open('./data/response_1623996348612.json')
+                        # data = json.load(get_sources)
+                        # data_df = json.loads(data['data'])
+                        # data_df = pd.DataFrame(data_df)
+                        # topic = data['topic']
+
+                        # with col2:
+                        #     if data_df.iloc[0,5] > data_df.SA.mean():
+                        #         if data_df.iloc[0,5] > 0:
+                        #             st.markdown('<p class="article-sub-title">This article is more positive than the average for this topic</p>', unsafe_allow_html=True)
+
+                        #         else:
+                        #             st.markdown('<p class="article-sub-title">This article is less negative than the average for this topic</p>', unsafe_allow_html=True)
+                                    
+                        #     else:
+                        #         if data_df.iloc[0,5] > 0:
+                        #             st.markdown('<p class="article-sub-title">This article is less positive than the average</p>', unsafe_allow_html=True)
+                                    
+                        #         else:
+                        #             st.markdown('<p class="article-sub-title">This article is more negative than the average</p>', unsafe_allow_html=True)
+                        
                         with col9:
                             st.write('Similar Articles:')
 
@@ -96,7 +122,7 @@ def get_news(search='simple'):
                                             background_color ='black',
                                             min_font_size = 10).generate(comment_words)
 
-                        # plot the WordCloud image	
+                            # plot the WordCloud image	
 
                         if len(data_df) > 14:
                             max_articles = 14
@@ -212,3 +238,136 @@ with my_expander:
 
 # Calling our Big Picture API using the `requests` package and returning a value with a button
 get_news('advanced')
+    
+    
+    # if st.button('Get news!', key=2):
+    #     # Retrieving the prediction from the **JSON** returned by the API...
+    #     #url = "https://api-s4zpk52g3a-ew.a.run.app/"
+    #     #endpoint = "search"
+    #     #news_params = {
+    #     #    "query": query,
+    #     #    "title": title,
+    #     #    "source": source,
+    #     #    "label" : label,
+    #     #    "date_from": date_from
+    #     #    }
+
+    #     # response = requests.get(url + endpoint, params=news_params)
+    #     # news_list = response.json()
+
+    #     ## Retrieving the prediction from the **JSON** placeholder...
+    #     get_sources = open('./data/example_search_output.json',) 
+    #     news_list = json.load(get_sources)
+    #     get_sources.close()
+
+    #     for keys, news in news_list.items():
+    #         col1,col2,col3 = st.beta_columns(3)
+    #         with col1:
+    #             st.write(f'{news["title"]}')
+    #         with col2:
+    #             if st.button(f'Get sentiment analysis report', key=int(keys)+11):
+    #                     # predict sentiment analysis based on the key for this news article 
+    #                     pass
+    #         with col3:
+    #             st.write(f'[Read this news article]({news["url"]})')
+    # else:
+    #     st.markdown('<p class="small-font">Click this button to get a list of 10 news based on your advanced search parameters.</p>', unsafe_allow_html=True)
+
+    # # my_dict = news_list[0]
+    # my_dict = {}
+
+    # # Dictionary containing the parameters for our Sentiment Analysis (from or model)...
+    # endpoint = "predict"
+    # sentiment_params = {
+    #         "sample": my_dict
+    #             }
+
+# import time
+# Add time to some text
+# t = st.empty()
+# for i in range(len(text) + 1):
+#     # heading 2
+#     t.markdown("## %s" % text[0:i])
+#     time.sleep(0.05) # decrease speed before presentation
+
+
+
+#get some logos
+
+        # src = news['url']
+        # domain = urlparse(src).netloc.strip("www.")
+        # url = f"https://autocomplete.clearbit.com/v1/companies/suggest?query={domain}"
+        # headers = {
+        #     'Accept': '*/*',
+        #     'Host': 'autocomplete.clearbit.com',
+        #     'Origin': 'https://clearbit.com',
+        #     'Referer': 'https://clearbit.com/logo',
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
+        #     'Accept-Language': 'pt-PT,pt;q=0.8,en;q=0.5,en-US;q=0.3',
+        #     'Connection':'keep-alive',
+        #     'Accept-Encoding': 'gzip, deflate, br'
+        # }
+        # response = requests.get(url, headers=headers)
+
+
+  #  st.markdown('''  
+  #  ## Sentiment Analysis:
+  #  ''')
+
+   # if st.button('What is the sentiment of this news article, positive or negative?', key=2):
+   #     response = requests.get(url, params=sentiment_params)
+   #     response_json = response.json()
+#
+ #       # Retrieving the prediction from the **JSON** returned by the API...
+  #      sentiment_analysis_predicition = response_json["sentiment_analysis_predicition"]
+#
+ #       # print will be visible in server output, not in the page
+  #      st.write(f'{sentiment_analysis_predicition}')
+  #  else:
+  #      st.write("Click this button to retrieve a sentiment analysis on the text you've selected.")
+
+    # get news list based on API request (considering the predicted tag, cluster aggregation and sentiment analysis result)
+
+
+ #   st.markdown('''#### A want to see an article with a different sentiment score: ''')
+
+ #   @st.cache
+ #   def get_news_list():
+ #       print('News List')
+ #       return pd.DataFrame({
+ #           'News Content': np.arange(0, 101, 1),
+ #           'News Tags': np.arange(0, 101, 1),
+ #           'Sentiment Analysis result': list(range(0, 101))
+ #           })
+ #
+ #   df = get_news_list()
+
+ #  option = st.slider('Select a modulus', 0, 100, 50)
+ #
+ #  filtered_df = df[df['Sentiment Analysis result'] % option == 0]
+ #
+ #  st.write(filtered_df)
+
+
+#Other stuff
+#st.button(f'Result {index+1}: {news["title"]}', key=index+2)
+#url = news["url"]
+#if st.button('Open browser'):
+#   link = f'[url](http://github.com)'
+#  st.markdown(link, unsafe_allow_html=True)
+
+# print will be visible in server output, not in the page
+# st.write(f'Source: {news_list[0]["source"]["name"]}')
+# st.write(f'Author: {news_list[0]["author"]}')
+
+# st.write(f'Description: {news_list[0]["description"]}')
+# st.write(f'Url: {news_list[0]["url"]}')
+# st.write(f'Url to image: {news_list[0]["urlToImage"]}')
+# st.write(f'Published At: {news_list[0]["publishedAt"]}')    
+# st.write(f'Content: {news_list[0]["content"]}')
+
+
+# Form example
+#  with st.form(key='my_form'):
+#    text_input = st.text_input(label='Enter your name')
+#    submit_button = st.form_submit_button(label='Submit')
